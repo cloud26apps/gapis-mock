@@ -281,7 +281,6 @@ const res = await storage.buckets.list({ project: 'my-test-project' }, overrides
 console.log(res,res.data);
 ```
 
-// ...existing code...
 ### Using PHP google-api-php-client
 
 ```php
