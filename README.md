@@ -82,7 +82,7 @@ node proxy.js
 
 ### Changing Host & Port for Mock Server & Proxy server
 
-Mock server runs on `http://localhost:3333` (default host=localhost, port=3333) . To change mock server host (--xmhost) or port (--xmport), try below
+Mock server runs on http://localhost:3333 (default host=localhost, port=3333) . To change mock server host (--xmhost) or port (--xmport), try below
 ```bash
 # use whichever method you used to install, any of the below
 gapis-mock --xmhost=127.0.0.1 --xmport=4000
@@ -100,11 +100,10 @@ node proxy.js --xmport=443 --xmsimhost=127.0.0.1 --xmsimport=4000
 
 ### Check status of Mock Server and Proxy
 Open your web browser or use curl to access the following URLs:
-```text
-http://localhost:3333 (mock server)
-http://localhost:3333/health (healthcheck)
-http://localhost:3344 (local MITM proxy server)
-```
+
+http://localhost:3333 (mock server)  
+http://localhost:3333/health (healthcheck)  
+http://localhost:3344 (local MITM proxy server)  
 
 ### Response headers from Mock Server
 The mock server adds the following response headers to indicate applied settings for each request, based on server-level or per-request config sent by the client. XMVAL, XMRESP, XMDELAY, XMERROR are optional response headers and only included when applicable.
@@ -135,7 +134,7 @@ Run the local MITM proxy (included), it will intercept requests to `*.googleapis
 Override DNS entries for service like `127.0.0.1 storage.googleapis.com` (one entry for each service) to point to the mock server IP address (e.g. 127.0.0.1). Run the local MITM proxy (included) on port 443 for TLS termination. Install the local CA certificate for HTTPS interception and/or configure your system to trust the local proxy and/or disable certificate validation for local dev/testing. No code changes needed in client. Certificate file location is shown in the proxy console log.
 
 ### RootURL override
-Point your client to the mock server (e.g. http://localhost:3333) by overriding the rootURL/baseURL parameter in your client via config/init/environment/code-change for each service/globally. Exact procedure varies by client/lang/service. Requires code changes in client. For each request, set 'xmservice' header = target service (e.g. 'storagev1', 'computev1', etc), this is needed for dynamic routing.
+Point your client to the mock server (e.g. http://localhost:3333) by overriding the rootURL/baseURL parameter in your client via config/init/environment/code-change for each service/globally. Exact procedure varies by client/lang/service. Requires code changes in client. For each request, set 'xmservice' header = target service (e.g. 'storagev1', 'computev1', etc), this is needed for dynamic routing. [LIst of Services](LISTSERVICES.md) to use in 'xmservice' header.
 
 Some google clients/libraries/SDKs/CLIs may have hardcoded hostnames, IPs, urls, or certificate pinning that may prevent proxy/DNS override from working, in such cases rootURL override may be the only option.
 
@@ -210,10 +209,10 @@ export/set XMVAL=3
 export/set XMRESP=1
 export/set XMDELAY=1000-3000@30
 export/set XMERROR=503@5
-npm run gapis-mock
+npx gapis-mock
 
 # Server-level config via command-line args, affects all requests, can be overridden by per-request config
-npm run gapis-mock -- --xmval=3 --xmresp=1 --xmdelay=1000-3000@30 --xmerror=503@5
+npx gapis-mock -- --xmval=3 --xmresp=1 --xmdelay=1000-3000@30 --xmerror=503@5
 ```
 ### Per-request config example
 ```bash
