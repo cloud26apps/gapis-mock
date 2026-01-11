@@ -1,7 +1,7 @@
 services:
 # Define the xmock service
   xmock100:
-    image: gapis-mock:latest
+    image: cloud26apps/gapis-mock:latest
     container_name: xmock100
     command: node simulator.js
 # Example: pass CLI args as shown below to customize mock server behavior, refer to README for details
@@ -11,7 +11,7 @@ services:
       - "3333:3333"
 # Define the xproxy service
   xproxy100:
-    image: gapis-mock:latest
+    image: cloud26apps/gapis-mock:latest
     container_name: xproxy100
 # xmsimhost = mockserver container name (above), xmsimport = mockserver exposed port (above)
     command: node proxy.js --xmport=3344 --xmsimhost=xmock100 --xmsimport=3333
