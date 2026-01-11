@@ -1,0 +1,23 @@
+services:
+# Define the xmock service
+  xmock100:
+    image: gapis-mock:latest
+    container_name: xmock100
+    command: node simulator.js
+# Example: pass CLI args as shown below to customize mock server behavior, refer to README for details
+    # command: node simulator.js --xmval=2 --xmresp=1 --xmdelay=500@5 --xmerror=404@10
+# Expose port 3333 for the mock server
+    ports:
+      - "3333:3333"
+# Define the xproxy service
+  xproxy100:
+    image: gapis-mock:latest
+    container_name: xproxy100
+# xmsimhost = mockserver container name (above), xmsimport = mockserver exposed port (above)
+    command: node proxy.js --xmport=3344 --xmsimhost=xmock100 --xmsimport=3333
+# Expose port 3344 for the proxy server, can be changed as needed
+# For DNS overrides, expose port 443 on host to 3344 in proxy container, "443:3344"
+    ports:
+      - "3344:3344"
+    depends_on:
+      - xmock100

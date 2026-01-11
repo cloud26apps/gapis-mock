@@ -1,4 +1,3 @@
-# Ignore folders & files
 .vscode*
 data/
 node_modules/
@@ -14,5 +13,7 @@ trace*
 dist/
 build/
 *.tgz
+*.tar.gz
 composer*
 vendor*
+package-lock*

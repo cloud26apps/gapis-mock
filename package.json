@@ -1,6 +1,6 @@
 {
   "name": "gapis-mock",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Mock server for all Google APIs, for local dev/testing. Based on Google discovery documents.",
   "license": "Apache-2.0",
   "author": "Cloud26apps",
@@ -63,8 +63,6 @@
   "keywords": [
     "googleapis",
     "googleapis-mock-server",
-    "googleapis-fake-server",
-    "googleapis-stub-server",
     "googleapis-mock-delays",
     "googleapis-mock-errors",
     "googleapis-chaos-testing",

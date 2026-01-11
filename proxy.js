@@ -117,6 +117,17 @@ export async function mockProxy() {
             }
         });
 
+    // Healthcheck endpoint
+    await proxy.forGet('/health')
+        .thenReply(200, 'OK');        
+
+    // Provide endpoint to download the proxy CA certificate
+    await proxy.forGet('/download-proxy-ca-cert')
+        .thenReply(200, fs.readFileSync(CERTPATH, 'utf8'), {
+            'Content-Type': 'plain/text',
+            'Content-Disposition': 'attachment; filename="mock-simulator-proxy-root-ca.crt"'
+        });
+
     // Handle requests to the proxy itself (not proxied requests)
     await proxy.forAnyRequest()
         .matching(req => {
@@ -131,7 +142,7 @@ export async function mockProxy() {
             200,
             `This is a local MITM proxy running on port ${mockProxy.XMPORT}. 
 To use this proxy, set your client/lib/SDK/browser/backend's environment variables like HTTP_PROXY HTTPS_PROXY (etc) to http://localhost:${mockProxy.XMPORT} OR configure your system/browser to use it as a proxy.
-Requests to *.googleapis.com will be forwarded to mock simulator (google apis) running at http://${mockProxy.XMSIMHOST}:${mockProxy.XMSIMPORT} (match this with actual values for mock simulator).
+Requests to *.googleapis.com will be forwarded to mock simulator.
 Disable SSL/TLS verification checks in your client/lib/SDK/browser/backend to avoid certificate errors (self-signed cert).
 All other requests will be transparently proxied as-is.
 To implement custom behavior, modify proxy.js code OR please contact us for premium access/support/customizations.
@@ -148,15 +159,16 @@ If you see this page, you are visiting the proxy directly, which is not how prox
         const displayUrls = [];
         const port = mockProxy.XMPORT;
         const interfaces = os.networkInterfaces();
-        displayUrls.push(`http://localhost:${port} (local machine)`, `http://127.0.0.1:${port} (local machine)`);
+        displayUrls.push(`http://localhost:${port}`, `http://127.0.0.1:${port}`);
         for (const name in interfaces) {
             for (const iface of interfaces[name]) {
                 if (!iface.internal && iface.family === 'IPv4') {
-                    displayUrls.push(`http://${iface.address}:${port} (network/docker)`);
+                    displayUrls.push(`http://${iface.address}:${port}`);
                 }
             }
         }
-        displayUrls.push('Skipping IPv6 addresses for display.');
+        displayUrls.push('Skipping IPv6 addresses for display, avoid using IPv6 addresses.');
+        displayUrls.push(`IMPORTANT NOTE - If using Docker/container, access the proxy using the host machine's IP address/hostname/port based on "docker run -p / docker compose" settings.`);
         log('Proxy running. Access at:');
         displayUrls.forEach(u => log('  ' + u));
     }
@@ -164,9 +176,9 @@ If you see this page, you are visiting the proxy directly, which is not how prox
     log('Local MITM proxy server started on port ', mockProxy.XMPORT);
     // log(proxy.proxyEnv, proxy.url);
     displayUrls();
-    log(`CA Certificate Path: ${CERTPATH}`);
+    log(`Download URL for Proxy Root CA cert: http://localhost:${mockProxy.XMPORT}/download-proxy-ca-cert`);
     log(`Make sure to install the CA certificate in your system/browser trusted root CA store to avoid SSL/TLS errors OR disable SSL/TLS verification checks to avoid certificate errors (due to self-signed cert).`);
-    log(`Proxy will forward hosts matching *.googleapis.com to mock simulator running at http://${mockProxy.XMSIMHOST}:${mockProxy.XMSIMPORT} (change config as needed).`);
+    log(`Proxy will forward hosts matching *.googleapis.com to mock simulator.`);
     log(`Set environment variables HTTP_PROXY HTTPS_PROXY etc to http://localhost:${mockProxy.XMPORT} OR configure your system/browser to use it as a proxy.`);
 
     // proxy.getMockedEndpoints().then(endpoints => {

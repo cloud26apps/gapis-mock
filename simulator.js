@@ -13,7 +13,7 @@ export const OPTS = {
   OLDCONN_PURGE: 600000, // purge old connections
   BODY_MAXSIZE: '1 GB', BODY_TRUNCATED: '1 MB', // body size limits for content parsers
   MAXDELAY_MS: 30000, // max artificial delay for mock delays
-  LRU_MAXITEMS: 600, LRU_TTL_MINS: 15, LRU_AUTOPURGE_MINS: 20, // LRU cache options
+  LRU_MAXITEMS: 600, LRU_TTL_MINS: 10, LRU_AUTOPURGE_MINS: 5, // LRU cache options
   PRELOAD: "storage" // CSV list of services to preload in memory, refer documentation for valid service names to use
 };
 
@@ -88,7 +88,7 @@ app.use((req, res, next) => {
 
   req.XMREQID = `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
   res.setHeader('XMREQID', req.XMREQID); // request identifier
-  res.setHeader('XMSERVER', 'GAPIS-MOCK/1.0.0/20260108'); // server identifier
+  res.setHeader('XMSERVER', 'GAPIS-MOCK/1.0.1'); // server identifier
   next();
 });
 
@@ -258,17 +258,18 @@ async function startServer() {
       OPTS.HOST = '127.0.0.1'; OPTS.PORT = addr.port;
       // Get all network interfaces
       const interfaces = os.networkInterfaces();
-      displayUrls.push(`http://localhost:${addr.port} (local machine)`, `http://127.0.0.1:${addr.port} (local machine)`); // Start with localhost
+      displayUrls.push(`http://localhost:${addr.port}`, `http://127.0.0.1:${addr.port}`); // Start with localhost
       // Collect only IPv4 addresses
       for (const name in interfaces) {
         for (const iface of interfaces[name]) {
-          if (!iface.internal && iface.family === 'IPv4') {
-            displayUrls.push(`http://${iface.address}:${addr.port} (network/docker)`); // ${JSON.stringify(iface)} interface-details
+          if (!iface.internal && iface.family==='IPv4') {
+            displayUrls.push(`http://${iface.address}:${addr.port}`); // ${JSON.stringify(iface)} interface-details
           }
         }
       }
       // Construct display URLs
       displayUrls.push('Skipping IPv6 addresses for display, avoid using IPv6 addresses.');
+      displayUrls.push(`IMPORTANT NOTE - If using Docker/container, access the server using the host machine's IP address/hostname/port based on "docker run -p/docker compose" settings.`);
     } else {
       // Use the specific bound address
       const displayHost = addr.family === 'IPv6' ? `[${addr.address}]` : addr.address;

@@ -2,7 +2,7 @@
 Mock server for Google APIs, for local dev/testing only. Based on Google discovery documents. Not Affiliated with Google.
 
 ## Changelog
-v1.0.0 20260108 - First public release
+v1.0.1 - 2026-01-11 - First public release
 
 ## Features
 
@@ -41,15 +41,30 @@ All Google REST API services, all versions, are supported, check the [List of Se
 - System params like xml/csv/proto/streams/fields/fieldmasks are ignored, can be added later
 
 ## Requirements
-- Node.js >= 20.0.0, npm or yarn
+- Node.js >= 20.0.0, npm or yarn, OR use Docker image
 
 ## Quick Start & Installation
 
-### Mock Server & Local MITM Proxy
+To install & run the Mock server & local MITM proxy, choose any one option below.
 
-Choose one install/run option below.
+- Mock server runs on http://localhost:3333 (default host/port)  
+- Local MITM proxy runs on http://localhost:3344 (default host/port)
 
-1) Install & run (global)
+### Run via Docker container (recommended)
+Download the docker compose file [docker-compose.yaml](./docker-compose.yaml) and then run the below commands.
+
+```bash
+# runs the mock server
+docker compose up -d
+# check status
+docker compose ps
+# view logs
+docker compose logs
+# stops and removes the containers
+docker compose down
+```
+
+### Nodejs npm - Install & run (global)
 ```bash
 npm install -g gapis-mock --omit=dev
 # runs the mock server
@@ -60,7 +75,7 @@ gapis-proxy
 npx gapis-proxy
 ```
 
-2) Install to a project & run (local)
+### Nodejs npm - Install to project & run (local)
 ```bash
 npm install gapis-mock --save
 # runs the mock server
@@ -69,7 +84,7 @@ npx gapis-mock
 npx gapis-proxy
 ```
 
-3) Run from cloned repository (source / development)
+### Run from cloned repository (for source / development)
 ```bash
 git clone https://github.com/cloud26apps/gapis-mock.git
 cd gapis-mock
@@ -82,20 +97,24 @@ node proxy.js
 
 ### Changing Host & Port for Mock Server & Proxy server
 
-Mock server runs on http://localhost:3333 (default host=localhost, port=3333) . To change mock server host (--xmhost) or port (--xmport), try below
+Mock server runs on http://localhost:3333 (default host=localhost, port=3333).  
+To change mock server host (--xmhost) or port (--xmport), try below
 ```bash
 # use whichever method you used to install, any of the below
 gapis-mock --xmhost=127.0.0.1 --xmport=4000
 npx gapis-mock --xmhost=127.0.0.1 --xmport=4000
 node simulator.js --xmhost=127.0.0.1 --xmport=4000
+# for docker compose, edit docker-compose.yaml file to change ports
 ```
 
-Proxy server runs on http://localhost:3344 (default host=localhost, port=3344). To change proxy port (--xmport) / simulator host port (--xmsimhost --xmsimport), try below
+Proxy server runs on http://localhost:3344 (default host=localhost, port=3344).   
+To change proxy port (--xmport) / simulator host port (--xmsimhost --xmsimport), try below
 ```bash
 # use whichever method you used to install, any of the below
 gapis-proxy --xmport=443 --xmsimhost=127.0.0.1 --xmsimport=4000
 npx gapis-proxy --xmport=443 --xmsimhost=127.0.0.1 --xmsimport=4000
 node proxy.js --xmport=443 --xmsimhost=127.0.0.1 --xmsimport=4000
+# for docker compose, edit docker-compose.yaml file to change ports
 ```
 
 ### Check status of Mock Server and Proxy
@@ -104,22 +123,24 @@ Open your web browser or use curl to access the following URLs:
 http://localhost:3333 (mock server)  
 http://localhost:3333/health (healthcheck)  
 http://localhost:3344 (local MITM proxy server)  
+http://localhost:3344/download-proxy-ca-cert (download proxy root CA cert)  
+http://localhost:3344/health (proxy healthcheck)  
 
 ### Response headers from Mock Server
-The mock server adds the following response headers to indicate applied settings for each request, based on server-level or per-request config sent by the client. XMVAL, XMRESP, XMDELAY, XMERROR are optional response headers and only included when applicable.
+Mock server adds the following response headers to indicate applied settings for each request, based on server-level or per-request config sent by the client. XMVAL, XMRESP, XMDELAY, XMERROR are optional response headers and only included when applicable.
 ```text
-header: XMSERVER: GAPIS-MOCK/1.0.0/20260108 (server identifier)
+header: XMSERVER: GAPIS-MOCK/1.0.1 (server identifier)
 header: XMREQID: 1767254525105-f9r90g3aj (unique request ID)
 header: XMINFO: storagev1 / storage:v1 / GET / storage.buckets.list (service/method info)
-header: XMVAL: 1 (mock validation type, 0=none,1=request,2=response,3=both)
-header: XMRESP: 1 (mock response type, 0=empty,1=schema-valid,2=custom)
+header: XMVAL: 1 (mock validation type)
+header: XMRESP: 1 (mock response type)
 header: XMDELAY: 500 ms @ 100% (APPLIED) (mock delay, applied/skipped)
 header: XMERROR: 503 @ 10% (SKIPPED) (mock error, applied/skipped)
 header: XM***: any other custom headers set by application
 ```
 
 ### Installing CA certificates
-For HTTPS interception via local MITM proxy or DNS override on port 443, you need to install/trust the local CA certificate generated by the proxy. On first run of the proxy, it generates a local CA certificate in `./proxy-root-ca.crt` file.  Certificate file location is shown in the proxy log.
+For HTTPS interception via local MITM proxy or DNS override on port 443, you need to install/trust the local CA certificate generated by the proxy. On first run of the proxy, it generates a local CA certificate in `./proxy-root-ca.crt` file. Certificate file can be downloaded from http://localhost:3344/download-proxy-ca-cert
 
 ### Using other proxy tools
 You can use any popular local MITM proxy tools like `mitmproxy`, `Fiddler`, `Burp Suite`, `Charles Proxy`, `Proxifier`, etc. Just configure your proxy to intercept requests to `*.googleapis.com` and forward them to the local mock simulator (http) with original 'host' header or 'x-original-host' or 'x-forwarded-host'. Host headers are used for routing to appropriate service/method in the mock simulator.
@@ -128,20 +149,21 @@ You can use any popular local MITM proxy tools like `mitmproxy`, `Fiddler`, `Bur
 Supports any Google API clients that use standard Google API REST endpoints (e.g. *.googleapis.com)
 
 ### Proxy mode
-Run the local MITM proxy (included), it will intercept requests to `*.googleapis.com` and forward them to mock server. Set the HTTP_PROXY HTTPS_PROXY environment variables to point to the local proxy server (e.g. http://localhost:3344). Install the local CA certificate for HTTPS interception and/or configure your system to trust the local proxy and/or disable certificate validation for local dev/testing. Certificate file location is shown in the proxy console log.
+Run the local MITM proxy (included), it will intercept requests to `*.googleapis.com` and forward them to mock server. Set the HTTP_PROXY HTTPS_PROXY environment variables to point to the local proxy server (e.g. http://localhost:3344). Install the local CA certificate for HTTPS interception and/or configure your system to trust the local proxy and/or disable certificate validation for local dev/testing. Certificate file can be downloaded from http://localhost:3344/download-proxy-ca-cert.
 
 ### DNS override
-Override DNS entries for service like `127.0.0.1 storage.googleapis.com` (one entry for each service) to point to the mock server IP address (e.g. 127.0.0.1). Run the local MITM proxy (included) on port 443 for TLS termination. Install the local CA certificate for HTTPS interception and/or configure your system to trust the local proxy and/or disable certificate validation for local dev/testing. No code changes needed in client. Certificate file location is shown in the proxy console log.
+Override DNS entries for service like `127.0.0.1 storage.googleapis.com` (one entry for each service) to point to the mock server IP address (e.g. 127.0.0.1). Run the local MITM proxy (included) on port 443 for TLS termination. Install the local CA certificate for HTTPS interception and/or configure your system to trust the local proxy and/or disable certificate validation for local dev/testing. No code changes needed in client. Certificate file can be downloaded from http://localhost:3344/download-proxy-ca-cert.
 
 ### RootURL override
 Point your client to the mock server (e.g. http://localhost:3333) by overriding the rootURL/baseURL parameter in your client via config/init/environment/code-change for each service/globally. Exact procedure varies by client/lang/service. Requires code changes in client. For each request, set 'xmservice' header = target service (e.g. 'storagev1', 'computev1', etc), this is needed for dynamic routing. [LIst of Services](LISTSERVICES.md) to use in 'xmservice' header.
 
 Some google clients/libraries/SDKs/CLIs may have hardcoded hostnames, IPs, urls, or certificate pinning that may prevent proxy/DNS override from working, in such cases rootURL override may be the only option.
 
-Refer to the [Usage Examples](#usage-examples) section for more details about current integration status with various clients.
+### Current Integration Status
+Mock server has been tested with various clients/libraries/SDKs/CLIs/tools for integration. Refer to the [Usage Examples](#usage-examples) section for more details.
 
 ### Community Help
-Need community help for testing integration with more clients/libraries/SDKs/CLIs/tools and reporting issues / fixes / workarounds for each client. Please [Contact Us](#support) with your findings.
+Need community help for testing integration with more clients/libraries/SDKs/CLIs/tools and reporting issues/fixes/workarounds for each client. Please [Contact Us](#support) with your findings.
 
 ## Configuration options for Mock Simulations
 
@@ -213,8 +235,9 @@ npx gapis-mock
 
 # Server-level config via command-line args, affects all requests, can be overridden by per-request config
 npx gapis-mock -- --xmval=3 --xmresp=1 --xmdelay=1000-3000@30 --xmerror=503@5
+# for docker compose, edit docker-compose.yaml file to add environment variables or command-line args
 ```
-### Per-request config example
+### Request-level config example
 ```bash
 # Per-request config via headers, only affects this individual request
 curl -H "XMVAL: 3" -H "XMRESP: 1" -H "XMDELAY: 1000-3000@30" -H "XMERROR: 503@5" "http://storagev1.localhost:3333/storage/v1/b/bucket1"
@@ -238,12 +261,12 @@ Set XMRESP=3 in server/request config and then add your custom business logic (u
 # Direct simulator access :
 curl "http://localhost:3333/storage/v1/b/bucket1" -H "xmservice: storage" -v
 
+# Via Proxy : Using -x flag (inline proxy specification)
+curl -k "https://storage.googleapis.com/storage/v1/b/bucket1" -x http://localhost:3344 -v
+
 # DNS override : Using curl's --resolve flag
 # Proxy must be running on port 443 for TLS termination
 curl -k "https://storage.googleapis.com/storage/v1/b/bucket1" --resolve storage.googleapis.com:443:127.0.0.1 -v
-
-# Via Proxy : Using -x flag (inline proxy specification)
-curl -k "https://storage.googleapis.com/storage/v1/b/bucket1" -x http://localhost:3344 -v
 ```
 
 ### Using Node.js googleapis library
@@ -426,24 +449,24 @@ func main() {
 // RootURL override (code changes needed in client, need to test)
 ```
 ### All other clients/libraries/SDKs/CLIs/tools
-- Use either Proxy mode, DNS override, or RootURL override to point to the mock simulator, refer Usage examples
-- Set optional simulator options via request headers or query parameters as needed (XMVAL, XMRESP, XMDELAY, XMERROR)
-- Please report your findings/issues/workarounds for each client/library/SDK/CLI/tool to help improve integration with more clients, contact us via [Support](#support) section
+Refer to the above examples for guidance on how to integrate with other clients/libraries/SDKs/CLIs/tools. The key steps are to either use the local MITM proxy or override DNS entries or rootURL/baseURL in the client. Set optional simulator settings via request headers or query parameters as needed. 
 
 ## Project Structure & Components
 - `simulator.js` - Starts the mock server, handles config/middleware, request parsing, global/special endpoints, etc
 - `routerManager.js` - Manages dynamic routing, schema validation, mock delays, errors, responses, etc
 - `mockGenerator.js` - Generates mock data based on JSON schemas
 - `loadData.js` - Loads and caches files from "data.zip" archive
-- `proxy.js` - Local MITM proxy server that intercepts and forwards requests to the mock simulator
 - `data.zip` - Contains pregenerated router-specs, json-schemas for validations, list of all Google API services & names to use, proxy mapping from hostname/headers/path to actual services, all discovery documents, api directory, etc
+- `proxy.js` - Local MITM proxy server that intercepts and forwards requests to the mock simulator
 - `package.json` - Project metadata and dependencies
+- `docker-compose.yaml` - Docker compose file to run mock server & proxy via docker containers
+- `LISTSERVICES.md` - List of Google API services/names to use in 'xmservice' header for rootURL override mode
 
 ## Support
 
 - Issues: [gapis-mock/issues](https://github.com/cloud26apps/gapis-mock/issues)
 - Discussions: [gapis-mock/discussions](https://github.com/cloud26apps/gapis-mock/discussions)
-- Email: [cloud26apps] [@@@] [gmail.com]
+- Email: [cloud26apps] [@@@] [gmail]
 - Repository: [gapis-mock](https://github.com/cloud26apps/gapis-mock)
 
 ## Disclaimer
