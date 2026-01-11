@@ -252,7 +252,7 @@ Priority order (from highest to lowest):
 `Request Query Parameters > Request Headers > Command-line Args > Environment Variables > Default Values`
 
 ## Custom Business Logic
-Set XMRESP=3 in server/request config and then add your custom business logic (using javascript) for any services/methods in the `routerManager.js` file in the `businessLogic()` function. This allows you to define specific behaviors, data manipulations, or response formats as per your requirements. Refer to the comments in the code for guidance on how to implement your custom logic.
+Set XMRESP=2 in server/request config and then add your custom business logic for any services/methods in the `routerManager.js` file in the `businessLogic()` function. This allows you to define specific behaviors, data manipulations, or response formats as per your requirements. Refer to the comments in the code for guidance on how to implement your custom logic.
 
 ## Usage Examples
 
@@ -460,7 +460,9 @@ Refer to the above examples for guidance on how to integrate with other clients/
 - `proxy.js` - Local MITM proxy server that intercepts and forwards requests to the mock simulator
 - `package.json` - Project metadata and dependencies
 - `docker-compose.yaml` - Docker compose file to run mock server & proxy via docker containers
+- `Dockerfile` - Dockerfile to build the gapis-mock docker image
 - `LISTSERVICES.md` - List of Google API services/names to use in 'xmservice' header for rootURL override mode
+- `LICENSE` - Apache License 2.0 file
 
 ## Support
 
