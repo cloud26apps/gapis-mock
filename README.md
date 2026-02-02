@@ -1,5 +1,5 @@
-# gapis-mock - Mock server for Google APIs
-Mock server for Google APIs, for local dev/testing only. Based on Google discovery documents. Not Affiliated with Google.
+# gapis-mock - Local simulator mock server for Google APIs
+Local simulator Mock server for Google APIs, for local dev/testing only. Based on Google discovery documents. Not Affiliated with Google. Localstack for GCP googleapis.
 
 ## Changelog
 v1.0.1 - 2026-01-11 - First public release
@@ -8,7 +8,7 @@ v1.0.1 - 2026-01-11 - First public release
 
 **Google API Mocking** - Mocks all Google REST APIs services based on Discovery documents, covers 500+ APIs services, all versions (stable/alpha/etc), 22000+ endpoints/methods. Open Source, Apache-licensed, customizable.
 
-**Works Offline** - No internet connection needed, works completely offline for local dev/testing. No quotas, no billing costs, no limits, no risk of affecting live production data. Bundled "data.zip" file contains all discovery documents, json schemas, router specs, api directory, etc. 
+**Works Offline** - Local machine, No internet connection needed, works completely offline for local dev/testing. No quotas, no billing costs, no limits, no risk of affecting live production data. Bundled "data.zip" file contains all discovery documents, json schemas, router specs, api directory, etc. 
 
 **Dynamic API Routing** - Dynamically routes requests to the correct APIs/service/method based on Discovery info (method/path/headers).
 
@@ -478,3 +478,4 @@ Not affiliated with or endorsed by Google. For local dev/testing only.
 ## License
 
 Apache License 2.0 - See [LICENSE](./LICENSE) file for details
+
